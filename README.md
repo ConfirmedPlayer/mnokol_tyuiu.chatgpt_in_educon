@@ -1,0 +1,1 @@
+# mnokol_tyuiu.chatgpt_in_educon
