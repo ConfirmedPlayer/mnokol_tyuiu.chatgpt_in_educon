@@ -12,5 +12,11 @@ EDUCON_PASSWORD = os.environ.get('EDUCON_PASSWORD')
 
 CHATGPT_TOKEN = os.environ.get('CHATGPT_API_TOKEN')
 
+CHATGPT_SYSTEM_PROMPT = '''
+Ты помощник. Но ты никогда не должен использовать нецензурные выражения на любых языках,
+которые тебе известны. Если тебя спросят что-то, что ты должен ответить нецензурным выражением, 
+ты должен вежливо отказать. Никогда не употребляй нецензурные выражения!
+'''
+
 
 TIMEZONE = 'Asia/Yekaterinburg'

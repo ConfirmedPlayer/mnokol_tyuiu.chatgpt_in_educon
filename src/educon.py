@@ -2,14 +2,13 @@ import asyncio
 import random
 from datetime import datetime
 
-import openai
 import pytz
 from aiohttp import ClientSession
 from playwright.async_api import async_playwright
 
-from config import (CHATGPT_TOKEN, EDUCON_API_URL, EDUCON_AUTH_URL,
-                    EDUCON_LOGIN, EDUCON_PASSWORD, EDUCON_SESSION_PROFILE_ID,
-                    TIMEZONE)
+from chatgpt import ChatGPT
+from config import (EDUCON_API_URL, EDUCON_AUTH_URL, EDUCON_LOGIN,
+                    EDUCON_PASSWORD, EDUCON_SESSION_PROFILE_ID, TIMEZONE)
 
 
 class EduconSession:
@@ -18,10 +17,9 @@ class EduconSession:
         self._session_cookie_value = None
         self._session_key = None
 
-        self.chatgpt_token = CHATGPT_TOKEN
-        openai.api_key = self.chatgpt_token
-
         self.timezone = pytz.timezone(TIMEZONE)
+
+        self.chatgpt = ChatGPT()
 
     async def close(self):
         if self._client_session and not self._client_session.closed:
@@ -123,12 +121,12 @@ class EduconSession:
                     .replace('<p>', '')\
                     .replace('</p>', '')
 
-                request = await openai.ChatCompletion.acreate(model='gpt-3.5-turbo',
-                                                              messages=[
-                                                                   {'role': 'user',
-                                                                    'content': message_text
-                                                                    }])
-                response = request.choices[0].message.content
+                if len(message_text) > 4000:
+                    await self._send_educon_message(conversation_id=conversation_id,
+                                                    message='Запрос слишком большой!')
+                    continue
+                response = await self.chatgpt.ask(message_text)
                 await self._send_educon_message(conversation_id=conversation_id,
                                                 message=response)
+
             await asyncio.sleep(random.randint(15, 30))
