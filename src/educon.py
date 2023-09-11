@@ -47,11 +47,20 @@ class EduconSession:
                                              params=params,
                                              headers=headers,
                                              json=json_data) as r:
-            try:
+            status = r.status
+            if status == 200:
                 return await r.json()
-            except Exception:
-                print(f'{await r.text()}')
-                raise
+            else:
+                print('\nstatus != 200\n')
+                while status != 200:
+                    print('\nrequest != 200\n')
+                    print(await r.text())
+                    await asyncio.sleep(15)
+                    async with self._client_session.post(url=EDUCON_API_URL,
+                                                         params=params,
+                                                         headers=headers,
+                                                         json=json_data) as r2:
+                        status = r2.status
 
     async def _send_educon_message(self,
                                    conversation_id: int,
