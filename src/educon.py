@@ -47,7 +47,11 @@ class EduconSession:
                                              params=params,
                                              headers=headers,
                                              json=json_data) as r:
-            return await r.json()
+            try:
+                return await r.json()
+            except Exception:
+                print(f'{await r.text()}')
+                raise
 
     async def _send_educon_message(self,
                                    conversation_id: int,
