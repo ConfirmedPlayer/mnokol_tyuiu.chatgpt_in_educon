@@ -11,6 +11,8 @@ python = "^3.10"
 playwright = "^1.37.0"
 openai = "^0.28.0"
 pytz = "^2023.3.post1"
+beautifulsoup4 = "^4.12.2"
+lxml = "^4.9.3"
 
 
 [build-system]

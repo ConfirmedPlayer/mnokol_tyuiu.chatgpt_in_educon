@@ -4,8 +4,8 @@ from educon import EduconSession
 
 
 async def main():
-    session = EduconSession()
     try:
+        session = EduconSession()
         await session.refresh_session()
         await session.start_polling()
     finally:
