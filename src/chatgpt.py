@@ -50,7 +50,7 @@ class ChatGPT:
                 jsonified_message['answer'] = response
                 jsonified_message['solved'] = True
 
-                new_json = json.dumps(jsonified_message)
+                new_json = json.dumps(jsonified_message, ensure_ascii=False)
                 return new_json
 
             request = await openai.ChatCompletion.acreate(
