@@ -12,9 +12,10 @@ system_prompt = '''
 '''
 
 
-chatgpt_question_prompt = '''
+chatgpt_question_prompt_radio = '''
 {question}
 
+Варианты ответов:
 
 '''
 
@@ -31,28 +32,30 @@ class ChatGPT:
 
                 jsonified_message = json.loads(edited_message)
 
-                question = jsonified_message['question']
-                answers = jsonified_message['answers']
-                final_prompt = chatgpt_question_prompt.format(question=question)
+                match jsonified_message['type']:
+                    case 'radio':
+                        question = jsonified_message['question']
+                        answers = jsonified_message['answers']
+                        final_prompt = chatgpt_question_prompt_radio.format(question=question)
 
-                for answer in answers:
-                    final_prompt += answer + '\n'
-                print(f'\nfinal prompt is: {final_prompt}\n')
+                        for answer in answers:
+                            final_prompt += answer + '\n'
+                        print(f'\nfinal prompt is: {final_prompt}\n')
 
-                request = await openai.ChatCompletion.acreate(
-                    model='gpt-3.5-turbo',
-                    messages=[
-                        {'role': 'system', 'content': system_prompt},
-                        {'role': 'user', 'content': final_prompt}
-                    ]
-                )
-                response = request.choices[0].message.content
+                        request = await openai.ChatCompletion.acreate(
+                            model='gpt-3.5-turbo',
+                            messages=[
+                                {'role': 'system', 'content': system_prompt},
+                                {'role': 'user', 'content': final_prompt}
+                            ]
+                        )
+                        response = request.choices[0].message.content
 
-                jsonified_message['answer'] = response
-                jsonified_message['solved'] = True
+                        jsonified_message['answer'] = response
+                        jsonified_message['solved'] = True
 
-                new_json = json.dumps(jsonified_message, ensure_ascii=False)
-                return new_json
+                        new_json = json.dumps(jsonified_message, ensure_ascii=False)
+                        return new_json
 
             request = await openai.ChatCompletion.acreate(
                 model='gpt-3.5-turbo',
