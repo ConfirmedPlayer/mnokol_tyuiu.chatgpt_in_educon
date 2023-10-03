@@ -29,8 +29,7 @@ class EduconSession:
         params = {'sesskey': self._session_key,
                   'info': 'core_message_get_conversations'}
 
-        headers = {'Cookie': f'MoodleSession={self._session_cookie_value}',
-                   'X-Requested-With': 'XMLHttpRequest'}
+        headers = {'Cookie': f'MoodleSession={self._session_cookie_value}'}
 
         json_data = [{
                 'index': 0,
@@ -48,19 +47,15 @@ class EduconSession:
                                              headers=headers,
                                              json=json_data) as r:
             status = r.status
-            if status == 200:
-                return await r.json()
-            else:
+            while r.status != 200:
                 print('\nstatus != 200\n')
-                while status != 200:
-                    print('\nrequest != 200\n')
-                    print(await r.text())
-                    await asyncio.sleep(15)
-                    async with self._client_session.post(url=EDUCON_API_URL,
-                                                         params=params,
-                                                         headers=headers,
-                                                         json=json_data) as r2:
-                        status = r2.status
+                await asyncio.sleep(15)
+                async with self._client_session.post(url=EDUCON_API_URL,
+                                                     params=params,
+                                                     headers=headers,
+                                                     json=json_data) as r2:
+                    status = r2.status
+            return await r.json()
 
     async def _send_educon_message(self,
                                    conversation_id: int,
@@ -69,8 +64,7 @@ class EduconSession:
         params = {'sesskey': self._session_key,
                   'info': 'core_message_send_messages_to_conversation'}
 
-        headers = {'Cookie': f'MoodleSession={self._session_cookie_value}',
-                   'X-Requested-With': 'XMLHttpRequest'}
+        headers = {'Cookie': f'MoodleSession={self._session_cookie_value}'}
 
         json_data = [{
             'index': 0,
@@ -114,7 +108,10 @@ class EduconSession:
 
             print('getting new messages...')
             messages = await self._get_educon_messages()
-            error = messages[0]['error']
+            try:
+                error = messages[0]['error']
+            except Exception:
+                print(f'eror occured {messages}')
             if error:
                 print('Auth error was occured\n')
                 print(messages)
