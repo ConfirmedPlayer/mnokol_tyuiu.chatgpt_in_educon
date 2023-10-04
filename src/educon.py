@@ -94,9 +94,15 @@ class EduconSession:
     async def refresh_session(self):
         async with async_playwright() as connection:
             browser = await connection.chromium.launch()
-            page = await browser.new_page()
+            context = await browser.new_context()
+            page = await context.new_page()
 
             await page.goto(EDUCON_AUTH_URL)
+            if page.url != EDUCON_AUTH_URL:
+                cookie_value = await page.context.cookies(EDUCON_AUTH_URL)
+                self._session_cookie_value = cookie_value[0]['value']
+                self._session_key = await page.locator('[name="sesskey"]').get_attribute('value')
+                return
 
             await page.locator('[class="btn btn-primary btn-block text-break"]').click()
             await page.locator('[id="email"]').fill(EDUCON_LOGIN)
