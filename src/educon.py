@@ -47,8 +47,8 @@ class EduconSession:
                                              headers=headers,
                                              json=json_data) as r:
             status = r.status
-            while r.status != 200:
-                print('\nstatus != 200\n')
+            while status != 200:
+                print('\nread status != 200\n')
                 await asyncio.sleep(15)
                 async with self._client_session.post(url=EDUCON_API_URL,
                                                      params=params,
@@ -80,6 +80,15 @@ class EduconSession:
                                              params=params,
                                              headers=headers,
                                              json=json_data) as r:
+            status = r.status
+            while status != 200:
+                print('\nsend status != 200\n')
+                await asyncio.sleep(15)
+                async with self._client_session.post(url=EDUCON_API_URL,
+                                                     params=params,
+                                                     headers=headers,
+                                                     json=json_data) as r2:
+                    status = r2.status
             print(f'send message status: {r.status}\nmessage:{message}')
 
     async def refresh_session(self):
